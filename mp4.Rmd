@@ -1,18 +1,44 @@
 ---
-title: "mp4 title"
-author: "Mathena Abramson"
-date: "December 1, 2017"
+title: "Why You Hate Sequels... But You'll Watch Them Anyway"
+author: "By Mathena Abramson and Courtney Bloniasz"
 output:
   html_document:
     code_folding: hide
+    theme: cosmo
+    
 ---
+`r format(Sys.time(), "%b %e, %Y at %I:%M %p")`
+
+<style>
+body {
+  font-size: 24px;
+}
+
+a{
+  color: #d3a3fa;
+}
+</style>
+
+
+
+
+<center>
+![Source: lindsworthdeer](https://lindsworthdeer.files.wordpress.com/2016/02/mico-wars-why-holluywood-prefers-makine-movie-sequels-than-an-original-movie-25-02-2016-lhdeer-2.jpg)
+</center>
+
 ```{r, message = FALSE, warning = FALSE}
 library(mdsr)
 library(RMySQL)
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
-Are sequels today more frequent than in movie’s past or are we just simply more aware of it all? We set out to investigate how the use of sequels within the film industry has changed. We hypothesized that the frequency of produced sequels would increase overtime. In order to examine this trend, we utilized information from the imdb data set and joined the datatables titles and `movie_link`. Using this data, we selected sequels by filtering films that had been coded by imdb as full-length movies following original films.To select the movies that were sequels we filtered for when `link_type_id` = 1. This allowed us to see movies that follow another. Additionally, we selected films produced between 1900 and 2020. As a result, we created a line graph showing the number of sequels produced over time.
+Has Hollywood lost its creativity? In recent years, movies are becoming increasingly repetitive taking on the form of sequels, remakes, and reboots and viewers are vocalizing their annoyance. “For its part, Hollywood knows that a sequel to even the most beloved story is no sure thing,” writes historian Amanda Foreman. “Sometimes it's good to know when to stop”. However, despite the complaints, people keep returning to sequels and Hollywood continues to profit.  
+
+As it turns out, movie sequels have always been largely popular since the invention of film in the 1890s. According to IMDb, over 275 movie sequels, reboots, and remakes were released in the year 1916. This trend continued throughout the 21st century with over 300 movies released in 2010. The film industry’s continuous production of sequels demonstrates that while moviegoers express annoyance with sequels and their lack of creativity as of late, viewers keep indulging in these film franchises.  
+
+
+Utilizing the film database from IMDb, we used over 100 years of data to analyze films produced between 1900 and 2020. To analyze only sequels, we filtered for movies labeled as following an original film. However, it is important to note that IMDb’s definition of sequels differs from everyday viewer’s conceptions of movie sequels. For instance, IMDb defines film adaptations of books sequels as reboots or follow-up films. Additionally, films translated into different languages are considered remakes. 
+
 
 ```{r, message = FALSE, warning = FALSE}
 sqls_data <- db %>%
@@ -30,6 +56,7 @@ sqls_plot <- sqls_data %>%
   geom_area(fill = "#d3a3fa", alpha = .5)
 ```
 
+<center>
 ```{r, message = FALSE, warning = FALSE}
 sqls_plot +
   scale_x_continuous(expand = c(0,0),
@@ -53,8 +80,20 @@ sqls_plot +
        y = "Number of Sequels",
        caption = "(Data from IMDb)")
 ```
+</center>
+</br>
+Looking at this graphic, sequels spiked in popularity between 2005-2017. This could be explained by the release of several popular sequels in movie franchises such as: Harry Potter, Shrek, James Bond, Saw, Star Wars, Pirates of the Caribbean, and The Ocean's Trilogy. However, sequels have been popular since the early 20th-century. 
 
-Looking at this graphic, sequels spiked in popularity between 2005-2017. The resulting trend supports our initial hypothesis that the frequency of sequels increased overtime.This could be explained by the release of several popular sequels in movie franchises such as: Harry Potter, Shrek, Toy Story, Saw, Star Wars, Pirates of the Caribbean, and The Ocean's Trilogy.  However, there are also spikes in the number of sequels between 1910-1920 and 1922-1935. These spikes suggest that while sequels have become more popular in recent years, they have a history of being popular within the film industry. During the early 20th-century, this trend might be explained by the rise of popular movie stars and their repeated appearances in movie sequels. For example, Rudolph Valentino’s performance in The Sheik (1921) was a tremendous hit and subsequently prompted the sequel The Son of the Sheik (1926). Alternatively, the spike in sequels from the 1910-1930s could be explained by IMDb’s operationalization of sequels and follow-up  films. For example, the link id we selected (follows)  defined sequels in a multitude of ways which differ from everyday consumers’ conceptions of movie sequels. For instance, IMDb defines film adaptations of books sequels as reboots or follow-up films. As a result, additional research needs to be done on IMDb’s operationalization of variables in order to determine whether the trend depicted in the graphic accurately reflects the film industry.
+There are spikes in the number of sequels released between 1910-1920 and 1922-1935. These spikes suggest that while sequels have become more popular in recent years, they have a history of being popular within the film industry. During the early 20th-century, this trend might be explained by the rise of popular movie stars and their repeated appearances in movie sequels. For example, Rudolph Valentino’s performance in The Sheik (1921) was a tremendous hit and subsequently prompted the sequel The Son of the Sheik (1926). 
+
+Alternatively, the spike in sequels from 1910-1930s could be attributed to the release of the highly controversial film “The Birth of a Nation” in 1915. Originally a silent film, it was remade and rebooted in order to add different music, captions, and translations. Screenings of the film were met with widespread backlash and protest. This in turn insighted producer D. W. Griffith and other writers to create multiple sequels and spin-offs such as “Intolerance,” “The Fall of a Nation,” and “The Birth of a Race.”
+
+Some viewers argue that sequels by nature are already creative. Sequels and reboots are the product of a writer discovering a new way to carry out a storyline. This, however, is not the case. Filmmakers and movie goers alike stick with these patterns and continue with familiar story lines because it is comfortable. Additionally, producing film series is often cost effective for studios. Producers will often recycle old set designs, animation, and costumes to reduce operating budgets. 
+
+People claim to hate the recent upshot in sequels, however, not only are sequels not particularly more common now than they have been in the past but they are actually well received. Hollywood makes sequels because they make more money and they make more money because moviegoers are frequenting them. It would seem that the issue is not due to movie sequels are more frequent but rather the audience is becoming self-aware.
+
+
+
 
 #Git Repository
 https://github.com/m-abramson/mp4
