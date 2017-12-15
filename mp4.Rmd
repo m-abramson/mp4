@@ -5,13 +5,12 @@ output:
   html_document:
     code_folding: hide
     theme: cosmo
-    
 ---
 `r format(Sys.time(), "%b %e, %Y at %I:%M %p")`
 
 <style>
 body {
-  font-size: 24px;
+  font-size: 18px;
 }
 
 a{
@@ -23,7 +22,8 @@ a{
 
 
 <center>
-![Source: lindsworthdeer](https://lindsworthdeer.files.wordpress.com/2016/02/mico-wars-why-holluywood-prefers-makine-movie-sequels-than-an-original-movie-25-02-2016-lhdeer-2.jpg)
+![Collection of movie and sequels produced between 2005 and 2017 Source: lindsworthdeer](https://lindsworthdeer.files.wordpress.com/2016/02/mico-wars-why-holluywood-prefers-makine-movie-sequels-than-an-original-movie-25-02-2016-lhdeer-2.jpg)
+
 </center>
 
 ```{r, message = FALSE, warning = FALSE}
@@ -32,27 +32,43 @@ library(RMySQL)
 db <- dbConnect_scidb(dbname = "imdb")
 ```
 
-Has Hollywood lost its creativity? In recent years, movies are becoming increasingly repetitive taking on the form of sequels, remakes, and reboots and viewers are vocalizing their annoyance. “For its part, Hollywood knows that a sequel to even the most beloved story is no sure thing,” writes historian Amanda Foreman. “Sometimes it's good to know when to stop”. However, despite the complaints, people keep returning to sequels and Hollywood continues to profit.  
+Why do so many moviegoers say they hate sequels? In recent years, movies are becoming increasingly repetitive taking on the form of sequels, remakes, and reboots and viewers are vocalizing their annoyance. “For its part, Hollywood knows that a sequel to even the most beloved story is no sure thing,” writes historian Amanda Foreman of the [Wall Street Journal](https://search-proquest-com.libproxy.smith.edu/docview/1970318821/9589209AD0FC43F9PQ/1?accountid=13911). “Sometimes it's good to know when to stop”. However, despite the complaints, people keep returning to sequels and Hollywood continues to profit.  
 
-As it turns out, movie sequels have always been largely popular since the invention of film in the 1890s. According to IMDb, over 275 movie sequels, reboots, and remakes were released in the year 1916. This trend continued throughout the 21st century with over 300 movies released in 2010. The film industry’s continuous production of sequels demonstrates that while moviegoers express annoyance with sequels and their lack of creativity as of late, viewers keep indulging in these film franchises.  
+Consumers claim that these films are not wanted, however, as a result of the general public attending these films, it indicates to hollywood filmakers that this is not the case. 
+<blockquote class="twitter-tweet" data-conversation="none" data-lang="en"><p lang="en" dir="ltr">too many sequels that nobody asked for.</p>&mdash; Anis Tabet (@AnisTabet23) <a href="https://twitter.com/AnisTabet23/status/759706117853241344?ref_src=twsrc%5Etfw">July 31, 2016</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 
-Utilizing the film database from IMDb, we used over 100 years of data to analyze films produced between 1900 and 2020. To analyze only sequels, we filtered for movies labeled as following an original film. However, it is important to note that IMDb’s definition of sequels differs from everyday viewer’s conceptions of movie sequels. For instance, IMDb defines film adaptations of books sequels as reboots or follow-up films. Additionally, films translated into different languages are considered remakes. 
+While annoyance is expressed, support is still shown. In response to the prospect of a Jurassic World sequel, moviegoer tweets:
 
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">I’ll still go see it, but I’m not as excited as I’d like to be. Trailer makes it look like it suffers from the same “dumb as a rock characters” problem as the last one, but it may still wind up being a better-assembled film.</p>&mdash; Tone (@ourmatetone) <a href="https://twitter.com/ourmatetone/status/939073476228468736?ref_src=twsrc%5Etfw">December 8, 2017</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-```{r, message = FALSE, warning = FALSE}
-sqls_data <- db %>%
-  dbGetQuery("SELECT COUNT(DISTINCT t.id) AS count, title, kind_id, link_type_id, production_year
+Through social media, blogs, and even online op-ed articles, moviegoers are taking to the internet to voice their hatred of sequels. For example, in the tweets above, these viewers are clearly voicing their disinterest in movie sequels, yet still plan on seeing these films. We found hundreds of tweets following this general pattern where people state their disinterest in sequels due to their the repetitiveness and lack of creativity, but the interest and plans of supporting these films is ever present.
+
+One possible explanation for this hatred could be the assumption that Hollywood’s production of sequels is a new phenomenon. “Basically everything is a sequel now. Or a remake.” As reporter Lauren Duca wrote for the [Huffington Post](https://www.huffingtonpost.com/2015/06/17/middlebrow-sequels_n_7604782.html). “With rare exception, Hollywood is bankrupt of original ideas.”  Hollie McKay, a [Fox News](http://www.foxnews.com/entertainment/2011/08/01/creativity-crisis-has-remake-obsessed-hollywood-run-out-new-ideas.html) staff reporter even went as far as calling the recent rise in movie sequels a “creativity crisis.” She believes that “today, the [movie] remake machine is reaching new heights (or depths, depending on your perspective).” Over and over again, people are expressing their frustration with Hollywood’s recent inability to produce new narratives and creative characters. However, despite the assumption that movie sequels are a recent phenomenon, they have actually been produced since the early 20th-century.
+
+```{r}
+sql <- "
+SELECT production_year, COUNT(DISTINCT t.id) AS num_movies, title, kind_id, link_type_id, production_year
 FROM title t
 JOIN movie_link ON t.id = linked_movie_id
-WHERE kind_id = 1 AND link_type_id = 1
-GROUP BY production_year;")
+LEFT JOIN movie_info mi ON mi.movie_id = t.id
+LEFT JOIN movie_info mi2 ON mi2.movie_id = t.id
+LEFT JOIN movie_info mi3 ON mi3.movie_id = t.id
+LEFT JOIN movie_info_idx mii ON mii.movie_id = t.id
+WHERE kind_id = 1 AND production_year < 2017
+  AND mi.info_type_id = 1 AND link_type_id = 1 AND mi.info >= 80 
+  AND mi2.info_type_id = 8 AND mi2.info = 'USA'
+  AND mii.info_type_id = 100 AND mii.info > 1500 
+GROUP BY production_year;"
+sqls_data <- db %>%
+  dbGetQuery(sql)
 ```
 
-```{r, message = FALSE, warning = FALSE}
-sqls_plot <- sqls_data %>%
-  ggplot(aes(x = production_year, y = count)) +
-	geom_line(size = 1) +
+```{r}
+sqls_plot <- ggplot(data = sqls_data, aes(x = production_year, y = num_movies)) +
+  geom_line(size = 1) +
   geom_area(fill = "#d3a3fa", alpha = .5)
 ```
 
@@ -60,14 +76,8 @@ sqls_plot <- sqls_data %>%
 ```{r, message = FALSE, warning = FALSE}
 sqls_plot +
   scale_x_continuous(expand = c(0,0),
-                   breaks = c(1900, 1910, 1920, 1930, 1940, 1950,
-                              1960, 1970, 1980, 1990, 2000, 2010,
-                              2020),
-                   labels = c("1900", "1910", "1920", "1930",
-                              "1940", "1950", "1960", "1970",
-                              "1980", "1990", "2000", "2010",
-                              "2020"),
-                   limits = c(1900, 2020)) +
+                   breaks = seq(from = 1915, to = 2020, by = 10),
+                   limits = c(1910, 2020)) +
   scale_y_continuous(expand = c(0,0)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(hjust = 0.5),
@@ -80,20 +90,39 @@ sqls_plot +
        y = "Number of Sequels",
        caption = "(Data from IMDb)")
 ```
+
+```{r}
+sql <- "
+SELECT production_year, COUNT(DISTINCT t.id) AS num_movies, title, kind_id, link_type_id, production_year
+FROM title t
+JOIN movie_link ON t.id = linked_movie_id
+LEFT JOIN movie_info mi ON mi.movie_id = t.id
+LEFT JOIN movie_info mi2 ON mi2.movie_id = t.id
+LEFT JOIN movie_info mi3 ON mi3.movie_id = t.id
+LEFT JOIN movie_info_idx mii ON mii.movie_id = t.id
+WHERE kind_id = 1 AND production_year < 2017
+  AND mi.info_type_id = 1 AND link_type_id = 1 AND mi.info >= 120 
+  AND mi2.info_type_id = 8 AND mi2.info = 'USA'
+  AND mii.info_type_id = 100 AND mii.info > 1500 AND mi3.info = 107
+GROUP BY production_year;"
+sqls_data <- db %>%
+  dbGetQuery(sql)
+```
 </center>
 </br>
-Looking at this graphic, sequels spiked in popularity between 2005-2017. This could be explained by the release of several popular sequels in movie franchises such as: Harry Potter, Shrek, James Bond, Saw, Star Wars, Pirates of the Caribbean, and The Ocean's Trilogy. However, sequels have been popular since the early 20th-century. 
 
-There are spikes in the number of sequels released between 1910-1920 and 1922-1935. These spikes suggest that while sequels have become more popular in recent years, they have a history of being popular within the film industry. During the early 20th-century, this trend might be explained by the rise of popular movie stars and their repeated appearances in movie sequels. For example, Rudolph Valentino’s performance in The Sheik (1921) was a tremendous hit and subsequently prompted the sequel The Son of the Sheik (1926). 
+Utilizing the film database from IMDb, we used over 100 years of data to analyze[^1] films produced between 1915 and 2017. To analyze only sequels, we filtered for full-length movies produced in the U.S., labeled as following an original film, and received over 1500 voted on IMDb. However, it is important to note that IMDb’s definition of sequels differs from everyday viewer’s conceptions of movie sequels. For instance, IMDb defines film adaptations of books sequels as reboots or follow-up films. Additionally, films translated into different languages are considered remakes. 
 
-Alternatively, the spike in sequels from 1910-1930s could be attributed to the release of the highly controversial film “The Birth of a Nation” in 1915. Originally a silent film, it was remade and rebooted in order to add different music, captions, and translations. Screenings of the film were met with widespread backlash and protest. This in turn insighted producer D. W. Griffith and other writers to create multiple sequels and spin-offs such as “Intolerance,” “The Fall of a Nation,” and “The Birth of a Race.”
+As it turns out, movie sequels have been produced since the invention of film in the 1890s. According to IMDb, 3 out of 5 full-length feature films produced in the U.S between 1915 and 1925 are coded as a movie sequel, reboot, or remake. This spike in sequels could be attributed to the release of the highly controversial film *The Birth of a Nation*[^2] in 1915. Originally a silent film, it was remade and rebooted in order to add different music, captions, and language translations. As a result of the explicit racist content, screenings of the film were largely met with widespread backlash and protest. Consequently, this incited moviegoers to view the film in order to see what was causing the widespread uproar. As a result of this film’s popular yet controversial status, producer D. W. Griffith and other writers to create multiple sequels and spin-offs such as *Intolerance*, *The Fall of a Nation*, and *The Birth of a Race*. This sequel trend continued into the 21st century with over 60 sequels released in 2015.
 
-Some viewers argue that sequels by nature are already creative. Sequels and reboots are the product of a writer discovering a new way to carry out a storyline. This, however, is not the case. Filmmakers and movie goers alike stick with these patterns and continue with familiar story lines because it is comfortable. Additionally, producing film series is often cost effective for studios. Producers will often recycle old set designs, animation, and costumes to reduce operating budgets. 
+Looking at the above graphic, moviegoers are not entirely incorrect. Movie sequels did spike in popularity between 2005-2017. This could be explained by the release of several popular sequels in movie franchises such as: Harry Potter, Planet of the Apes, James Bond, Saw, Star Wars, Fast and Furious, and The Ocean's Trilogy. However, it is also important to recognize that today Hollywood is producing a substantially higher number of full-length feature films compared to the number of films produced in the early 1900s. If the frequency of sequels today is put into perspective of the thousands of movie produced each year, their production rate is lower than we perceive it to be. It would seem that the issue is not due to the fact that movie sequels are more frequent, but rather that contemporary audience members are becoming more aware of their production. 
 
-People claim to hate the recent upshot in sequels, however, not only are sequels not particularly more common now than they have been in the past but they are actually well received. Hollywood makes sequels because they make more money and they make more money because moviegoers are frequenting them. It would seem that the issue is not due to movie sequels are more frequent but rather the audience is becoming self-aware.
-
+The film industry’s continuous production of sequels demonstrates that while moviegoers express annoyance with sequels and their lack of creativity as of late, viewers keep indulging in these film franchises. While people on the internet claim to hate the recent upshot in sequels, according to IMDb’s gross records, movie sequels are actually well received. In 2005, the original movie *Batman Begins* grossed $205,343,774, while its sequel *The Dark Knight*, produced a staggering $533,345,358. Additionally, in 2016, *Finding Dory*, the sequel to *Finding Nemo*, grossed $146,581,194 higher than the original film. The high success rates of sequels suggest that despite what some people claim online, moviegoers enjoy and appreciate sequels, remakes, and reboots enough to pay for a movie ticket to go see them. As a result of the high profit margins, Hollywood continues producing movie sequels in order to capitalize on their audience’s nostalgia for familiar storylines. 
 
 
 
-#Git Repository
-https://github.com/m-abramson/mp4
+
+#Footnotes
+[^1]: If you would like to see our full analysis, look at our [Github Repository](https://github.com/m-abramson/mp4)
+[^2]:https://en.wikipedia.org/wiki/The_Birth_of_a_Nation
+
